@@ -101,7 +101,25 @@ void setViewport(int width, int height)
 }
 
 
+//Function to Draw
+void render()
+{
+	//Set the clear colour(background)
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+	//clear the colour and depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//required to swap the back and front buffer
+	SDL_GL_SwapWindow(window);
+
+}
+
+//Function to update game state
+void update()
+{
+
+}
 
 
 //Main Method - Entry Point
@@ -133,6 +151,8 @@ int main(int argc, char* arg[])
 				running = false;
 			}
 		}
+		update();
+		render();
 	}
 
 
