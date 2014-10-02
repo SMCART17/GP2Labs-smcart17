@@ -14,6 +14,9 @@ const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 bool running = true;
 
+//SDL GL Context
+SDL_GLContext glcontext = NULL;
+
 //Global functions
 void InitWindow(int width, int height, bool fullscreen)
 {
@@ -34,6 +37,46 @@ void CleanUp()
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
+
+//Function to initialise OpenGL
+void initOpenGL()
+{
+	//Create OPenGL Context
+	glcontext = SDL_GL_CreateContext(window);
+	//Something went wrong in creating the context, if it is still NULL
+	if (!glcontext)
+	{
+		cout << "Error Creating OpenGL Context" << SDL_GetError() << endl;
+	}
+
+	//Smooth shading
+	glShadeModel(GL_SMOOTH);
+
+	//clear the background to black
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+	//Clear the depth buffer to 1.0
+	glClearDepth(1.0f);
+
+	//Enable depth testing
+	glEnable(GL_DEPTH_TEST);
+
+	//The depth test to use
+	glDepthFunc(GL_LEQUAL);
+
+	//Turn on best perspective correction
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+}
+
+//Function to set/reset viewport
+void setViewport(int width, int height)
+{
+
+}
+
+
+
+
 
 //Main Method - Entry Point
 int main(int argc, char* arg[])
