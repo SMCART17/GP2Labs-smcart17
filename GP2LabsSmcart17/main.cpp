@@ -1,5 +1,6 @@
 //Header files
 #include <iostream>
+#include <GL/glew.h>
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <gl\GLU.h>
@@ -16,6 +17,12 @@ bool running = true;
 
 //SDL GL Context
 SDL_GLContext glcontext = NULL;
+
+float triangleData[] = { 0.0f, 1.0f, 0.0f, //Top
+-1.0f, -1.0f, 0.0f, //Bottom Left
+1.0f, -1.0f, 0.0f }; // Bottom Right
+
+GLuint triangleVBO;
 
 //Global functions
 void InitWindow(int width, int height, bool fullscreen)
@@ -34,6 +41,7 @@ void InitWindow(int width, int height, bool fullscreen)
 void CleanUp()
 {
 	// used to clean up once we exit
+	glDeleteBuffers(1, &triangleVBO);
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
@@ -67,6 +75,13 @@ void initOpenGL()
 
 	//Turn on best perspective correction
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		/*Problem: glewInit failed, something is seriously wrong*/
+		cout << "Error:" << glewGetErrorString(err) << endl;
+	}
 }
 
 //Function to set/reset viewport
@@ -100,6 +115,18 @@ void setViewport(int width, int height)
 	glLoadIdentity();
 }
 
+void initGeometry()
+{
+	//Create buffer
+	glGenBuffers(1, &triangleVBO);
+
+	//Make the new VBO active
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+
+	//Copy Vertex Data to VBO
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleData),
+		triangleData, GL_STATIC_DRAW);
+}
 
 //Function to Draw
 void render()
@@ -109,6 +136,27 @@ void render()
 
 	//clear the colour and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Make the new VBO active. Repeat here as a sanity check
+	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+
+	//Establish its 3 coordinates per vertex with zero stride
+	glVertexPointer(3, GL_FLOAT, 0, NULL);
+
+	//Establish array contains vertices
+	glEnableClientState(GL_VERTEX_ARRAY);
+
+	//Switch to ModelView
+	glMatrixMode(GL_MODELVIEW);
+
+	//Reset using the Identity Matrix
+	glLoadIdentity();
+
+	//Translate
+	glTranslatef(0.0f, 0.0f, -6.0f);
+
+	//Actually draw the triangle
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	//required to swap the back and front buffer
 	SDL_GL_SwapWindow(window);
@@ -136,6 +184,8 @@ int main(int argc, char* arg[])
 
 	//Call our InitOpenGL Function
 	initOpenGL();
+	initGeometry();
+
 	//Set our viewport
 	setViewport(WINDOW_WIDTH, WINDOW_HEIGHT);
 
