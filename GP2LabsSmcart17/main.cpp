@@ -4,23 +4,32 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <gl\GLU.h>
+#include "Vertex.h"
 
 using namespace std;
 
+//SDL GL Context
+SDL_GLContext glcontext = NULL;
+
 //Pointer to our SDL Windows
-SDL_Window *window;
+SDL_Window * window;
 
 //Constants to control window creation
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 bool running = true;
 
-//SDL GL Context
-SDL_GLContext glcontext = NULL;
 
-float triangleData[] = { 0.0f, 1.0f, 0.0f, //Top
--1.0f, -1.0f, 0.0f, //Bottom Left
-1.0f, -1.0f, 0.0f }; // Bottom Right
+
+Vertex triangleData[] = { { 0.0f, 1.0f, 0.0f, // x,y,z
+1.0f, 0.0f, 0.0f, 1.0f }, //r,g,b,a
+
+{ -1.0f, -1.0f, 0.0f, //x,y,z
+0.0f, 1.0f, 0.0f, 1.0f }, //r,g,b,a
+
+{ 1.0f, -1.0f, 0.0f, // x,y,z
+0.0f, 0.0f, 1.0f, 1.0f } }; //r,g,b,a
+
 
 GLuint triangleVBO;
 
@@ -141,22 +150,32 @@ void render()
 	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
 
 	//Establish its 3 coordinates per vertex with zero stride
-	glVertexPointer(3, GL_FLOAT, 0, NULL);
+	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
 
 	//Establish array contains vertices
 	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
 	//Switch to ModelView
 	glMatrixMode(GL_MODELVIEW);
+
+	//each element of the array
+	glColorPointer(4, GL_FLOAT, sizeof(Vertex), (void**)(3 * sizeof(float)));
 
 	//Reset using the Identity Matrix
 	glLoadIdentity();
 
 	//Translate
-	glTranslatef(0.0f, 0.0f, -6.0f);
+	glTranslatef(2.0f, 2.0f, -9.0f);
 
 	//Actually draw the triangle
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	//Translate
+	glTranslatef(-2.0f, -2.0f, -11.0f);
+
+	//Actually draw the triangle
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(triangleData)/ sizeof(Vertex));
 
 	//required to swap the back and front buffer
 	SDL_GL_SwapWindow(window);
