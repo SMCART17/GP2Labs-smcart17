@@ -8,6 +8,9 @@
 
 using namespace std;
 
+GLuint triangleVBO;
+GLuint triangleEBO;
+
 //SDL GL Context
 SDL_GLContext glcontext = NULL;
 
@@ -21,17 +24,152 @@ bool running = true;
 
 
 
-Vertex triangleData[] = { { 0.0f, 1.0f, 0.0f, // x,y,z
-1.0f, 0.0f, 0.0f, 1.0f }, //r,g,b,a
+Vertex triangleData[] = {
 
-{ -1.0f, -1.0f, 0.0f, //x,y,z
-0.0f, 1.0f, 0.0f, 1.0f }, //r,g,b,a
+	//FRONT
+		{ -0.5f, 0.5f, 0.5f,
+		1.0f, 0.0f, 1.0f, 1.0f },// Top Left
 
-{ 1.0f, -1.0f, 0.0f, // x,y,z
-0.0f, 0.0f, 1.0f, 1.0f } }; //r,g,b,a
+		{ -0.5f, -0.5f, 0.5f,
+		1.0f, 1.0f, 0.0f, 1.0f },// Bottom Left
+
+		{ 0.5f, -0.5f, 0.5f,
+		0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+		{ 0.5f, 0.5f, 0.5f,
+		1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+		{ -0.5f, 0.5f, 0.5f,
+		1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+		{ 0.5f, -0.5f, 0.5f,
+		0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+		//BACK
+		{ -0.5f, 0.5f, -0.5f,
+		1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+		{ -0.5f, -0.5f, -0.5f,
+		1.0f, 1.0f, 0.0f, 1.0f },// Bottom Left
+
+		{ 0.5f, -0.5f, -0.5f,
+		0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+		{ 0.5f, 0.5f, -0.5f,
+		1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+		{ -0.5f, 0.5f, -0.5f,
+		1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+		{ 0.5f, -0.5f, -0.5f,
+		0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+};
+
+		GLuint indices[] = {
+			//front
+			0, 1, 2,
+			0, 3, 2,
+
+			//left
+			4, 5, 1,
+			4, 1, 0,
+
+			//right
+			3, 7, 2,
+			7, 6, 2,
+
+			//bottom
+			1, 5, 2,
+			6, 2, 1,
+			//top
+			5, 0, 7,
+			5, 7, 3,
+			//back
+			4, 5, 6,
+			4, 7, 6
+
+		};
+/*
+//TOP
+{ -0.5f, 0.5f, -0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+{ -0.5f, 0.5f, 0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Bottom Left
+
+{ 0.5f, 0.5f, 0.5f,
+1.0f, 0.0f, 1.0f, 1.0f }, //Bottom Right
+
+{ 0.5f, 0.5f, -0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+{ -0.5f, 0.5f, -0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+{ 0.5f, 0.5f, 0.5f,
+1.0f, 0.0f, 1.0f, 1.0f } , //Bottom Right
+
+//BOTTOM
+{ -0.5f, -0.5f, -0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Top Left
+
+{ -0.5f, -0.5f, 0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Left
+
+{ 0.5f, -0.5f, 0.5f,
+0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+{ 0.5f, -0.5f, -0.5f,
+0.0f, 1.0f, 1.0f, 1.0f },// Top Right
+
+{ -0.5f, -0.5f, -0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Top Left
+
+{ 0.5f, -0.5f, 0.5f,
+0.0f, 1.0f, 1.0f, 1.0f }, //Bottom Right
+
+// LEFT
+{ -0.5f, 0.5f, -0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+{ -0.5f, -0.5f, -0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Left
+
+{ -0.5f, -0.5f, 0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Right
+
+{ -0.5f, 0.5f, 0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+{ -0.5f, 0.5f, -0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+{ -0.5f, -0.5f, 0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Right
+
+// RIGHT
+{ 0.5f, -0.5f, 0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+{ 0.5f, 0.5f, 0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Left
+
+{ 0.5f, 0.5f, -0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Right
+
+{ 0.5f, -0.5f, -0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Right
+
+{ 0.5f, -0.5f, 0.5f,
+1.0f, 0.0f, 1.0f, 1.0f },// Top Left
+
+{ 0.5f, 0.5f, -0.5f,
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Right */
 
 
-GLuint triangleVBO;
+};
+
+
 
 //Global functions
 void InitWindow(int width, int height, bool fullscreen)
@@ -165,17 +303,15 @@ void render()
 	//Reset using the Identity Matrix
 	glLoadIdentity();
 
-	//Translate
-	glTranslatef(2.0f, 2.0f, -9.0f);
-
-	//Actually draw the triangle
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	gluLookAt(0.0, 0.0, 0.0, 
+		0.0, 0.0, -1.0f, 
+		0.0, 1.0, 0.0);
 
 	//Translate
-	glTranslatef(-2.0f, -2.0f, -11.0f);
+	glTranslatef(-1.5f, -1.5f, -6.0f);
 
 	//Actually draw the triangle
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(triangleData)/ sizeof(Vertex));
+	glDrawArrays(GL_TRIANGLES, 0, sizeof(triangleData) / sizeof(Vertex));
 
 	//required to swap the back and front buffer
 	SDL_GL_SwapWindow(window);
