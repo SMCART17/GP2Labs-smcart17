@@ -164,10 +164,10 @@ Vertex triangleData[] = {
 1.0f, 0.0f, 1.0f, 1.0f },// Top Left
 
 { 0.5f, 0.5f, -0.5f,
-1.0f, 1.0f, 0.0f, 1.0f },// Bottom Right */
+1.0f, 1.0f, 0.0f, 1.0f },// Bottom Right 
 
 
-};
+};*/
 
 
 
@@ -188,6 +188,7 @@ void InitWindow(int width, int height, bool fullscreen)
 void CleanUp()
 {
 	// used to clean up once we exit
+	glDeleteBuffers(1, &triangleEBO);
 	glDeleteBuffers(1, &triangleVBO);
 	SDL_GL_DeleteContext(glcontext);
 	SDL_DestroyWindow(window);
@@ -273,6 +274,16 @@ void initGeometry()
 	//Copy Vertex Data to VBO
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangleData),
 		triangleData, GL_STATIC_DRAW);
+
+	//create buffer
+	glGenBuffers(1, &triangleEBO);
+
+	//Make the EBO active
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleEBO);
+
+	//Copy Index data to the EBO
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+		GL_STATIC_DRAW);
 }
 
 //Function to Draw
@@ -286,6 +297,7 @@ void render()
 
 	//Make the new VBO active. Repeat here as a sanity check
 	glBindBuffer(GL_ARRAY_BUFFER, triangleVBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleEBO);
 
 	//Establish its 3 coordinates per vertex with zero stride
 	glVertexPointer(3, GL_FLOAT, sizeof(Vertex), NULL);
@@ -311,7 +323,8 @@ void render()
 	glTranslatef(-1.5f, -1.5f, -6.0f);
 
 	//Actually draw the triangle
-	glDrawArrays(GL_TRIANGLES, 0, sizeof(triangleData) / sizeof(Vertex));
+	glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(GLuint),
+		GL_UNSIGNED_INT, 0);
 
 	//required to swap the back and front buffer
 	SDL_GL_SwapWindow(window);
